@@ -1,4 +1,4 @@
-name: Check and Update IPs
+name: 1Check and Update IPs
 
 on:
   schedule:
