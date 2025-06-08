@@ -1,0 +1,12 @@
+{
+  "name": "ip-proxy-checker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "playwright": "^1.45.0",
+    "ioredis": "^5.4.3"
+  }
+}
