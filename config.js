@@ -10,7 +10,7 @@ export default {
   OUTPUT_JSON: 'proxies.json',
 
   // 并发数量（建议 5~10）
-  CONCURRENCY: 5,
+  CONCURRENCY: 50,
 
   // 单个代理测试超时时间（毫秒）
   TIMEOUT: 30000,
@@ -26,7 +26,7 @@ export default {
 
   // Redis 配置（本地或远程）
   REDIS: {
-    host: 'redis',
+    host: '127.0.0.1', // 改为本地地址，适用于非 Docker 环境
     port: 6379,
     db: 0
   },
