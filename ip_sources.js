@@ -1,4 +1,3 @@
 export default [
-  'https://checkerproxy.net/api/archive/2025-06-07#HTTP',
-  'https://checkerproxy.net/api/archive/2025-06-07#HTTPS'
+  'https://api.proxyscrape.com/v2/?request=getproxies&protocol=http',
 ];
