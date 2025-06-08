@@ -9,8 +9,8 @@ export default {
   OUTPUT_FILE: 'pyip.txt',
 
   // 并发数量（建议 5~10）
-  CONCURRENCY: 50,
+  CONCURRENCY: 30,
 
-  // 单次请求超时时间（毫秒）
+  // 单个代理测试超时时间（毫秒）
   TIMEOUT: 30000
 };
