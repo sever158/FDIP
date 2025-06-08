@@ -8,7 +8,16 @@ import axios from 'axios';
 import config from './config.js';
 import ipSources from './ip_sources.js';
 
+// 初始化 Redis 客户端
 const redis = new Redis(config.REDIS);
+
+let useRedis = true;
+
+// Redis 错误监听器（防止崩溃）
+redis.on('error', (err) => {
+  console.warn('⚠️ Redis 连接失败:', err.message);
+  useRedis = false;
+});
 
 let total = 0;
 let processed = 0;
@@ -65,12 +74,14 @@ async function checkProxy(ipPort) {
   let browser = null;
 
   try {
-    // 检查 Redis 中是否已缓存该代理的结果
-    const cached = await redis.get(`proxy:${ip}`);
-    if (cached === 'valid') {
-      updateProgress(true);
-      const geo = await getGeoLocation(ip);
-      return { ip, port, ...geo };
+    // 如果 Redis 可用，检查缓存
+    if (useRedis) {
+      const cached = await redis.get(`proxy:${ip}`);
+      if (cached === 'valid') {
+        updateProgress(true);
+        const geo = await getGeoLocation(ip);
+        return { ip, port, ...geo };
+      }
     }
 
     // 启动带代理的浏览器
@@ -102,15 +113,20 @@ async function checkProxy(ipPort) {
     // 判断是否通过 Cloudflare
     if (!content.includes("Just a moment...")) {
       updateProgress(true);
-      await redis.setex(`proxy:${ip}`, 3600 * 24, 'valid'); // 缓存 24 小时
-
+      if (useRedis) {
+        await redis.setex(`proxy:${ip}`, 3600 * 24, 'valid'); // 缓存 24 小时
+      }
       const geo = await getGeoLocation(ip);
       return { ip, port, ...geo };
     }
 
-    await redis.setex(`proxy:${ip}`, 3600 * 2, 'invalid'); // 缓存失败结果 2 小时
+    if (useRedis) {
+      await redis.setex(`proxy:${ip}`, 3600 * 2, 'invalid'); // 缓存失败结果 2 小时
+    }
   } catch (e) {
-    await redis.setex(`proxy:${ip}`, 3600 * 2, 'invalid');
+    if (useRedis) {
+      await redis.setex(`proxy:${ip}`, 3600 * 2, 'invalid');
+    }
   } finally {
     if (browser) await browser.close();
     updateProgress();
@@ -212,7 +228,7 @@ async function runConcurrent(tasks, concurrency) {
 // 启动主程序
 fetchAndCheckIps();
 
-// 如果启用自动更新，则设置定时器
-if (config.AUTO_UPDATE_SOURCES) {
+// 如果启用自动更新，则设置定时器（仅用于本地开发）
+if (config.AUTO_UPDATE_SOURCES && process.env.NODE_ENV !== 'ci') {
   setInterval(fetchAndCheckIps, config.UPDATE_INTERVAL_HOURS * 60 * 60 * 1000);
 }
