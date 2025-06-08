@@ -11,6 +11,9 @@ export default {
   // 并发数量（建议 5~10）
   CONCURRENCY: 30,
 
-  // 单个代理测试超时时间（毫秒）
-  TIMEOUT: 30000
+  // 单次请求超时时间（毫秒）
+  TIMEOUT: 30000,
+
+  // 是否开启调试模式（显示浏览器界面）
+  DEBUG: false
 };
