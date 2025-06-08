@@ -1,0 +1,12 @@
+{
+  "name": "puppeteer-proxy-checker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "puppeteer-extra": "^6.3.0",
+    "puppeteer-extra-plugin-stealth": "^4.5.0"
+  }
+}
