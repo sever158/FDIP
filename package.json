@@ -1,12 +1,11 @@
 {
-  "name": "puppeteer-proxy-checker",
+  "name": "ip-proxy-checker",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "puppeteer-extra": "^3.3.5",
-    "puppeteer-extra-plugin-stealth": "^3.5.0"
+    "puppeteer": "^23.0.0"
   }
 }
