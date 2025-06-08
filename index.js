@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import { promises as fs } from 'fs';
+import { exec } from 'child_process';
 
 // 导入配置和 IP 源
 import config from './config.js';
@@ -38,7 +39,7 @@ async function checkProxy(ipPort) {
     // 启动浏览器并设置代理
     browser = await puppeteer.launch({
       args: [`--proxy-server=${ip}:${port}`],
-      headless: true,
+      headless: !config.DEBUG,
       timeout: config.TIMEOUT
     });
 
@@ -118,7 +119,6 @@ async function fetchAndCheckIps() {
   console.log(`💾 已保存至 ${config.OUTPUT_FILE}`);
 
   // 自动提交到 GitHub
-  const { exec } = require('child_process');
   exec('git config --local user.email "bot@example.com" && git config --local user.name "Bot" && git add pyip.txt && git commit -m "Update IPs" && git push', (err) => {
     if (err) console.error('Git 提交失败:', err);
     else console.log('✅ Git 提交成功');
