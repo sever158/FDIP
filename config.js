@@ -10,7 +10,7 @@ export default {
   OUTPUT_JSON: 'proxies.json',
 
   // 并发数量（建议 5~10）
-  CONCURRENCY: 50,
+  CONCURRENCY: 5,
 
   // 单个代理测试超时时间（毫秒）
   TIMEOUT: 30000,
@@ -24,9 +24,9 @@ export default {
   // 自动更新间隔（单位：小时）
   UPDATE_INTERVAL_HOURS: 10,
 
-  // Redis 配置（本地或远程）
+  // Redis 配置（GitHub Actions 中使用 localhost）
   REDIS: {
-    host: '127.0.0.1', // 改为本地地址，适用于非 Docker 环境
+    host: '127.0.0.1', // ← 修改为本地地址，适用于 CI/CD 环境
     port: 6379,
     db: 0
   },
