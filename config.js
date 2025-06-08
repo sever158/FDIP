@@ -26,8 +26,11 @@ export default {
 
   // Redis 配置（本地或远程）
   REDIS: {
-    host: '127.0.0.1',
+    host: 'redis',
     port: 6379,
     db: 0
-  }
+  },
+
+  // 地理位置查询 API
+  GEOLOCATION_API: 'http://ip-api.com/json/'
 };
