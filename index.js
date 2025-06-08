@@ -1,13 +1,9 @@
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-
-// 导入模块
-import config from './config.js';
-import ipSources from './ip_sources.js';
+import puppeteer from 'puppeteer';
 import { promises as fs } from 'fs';
 
-// 启用反爬插件
-puppeteer.use(StealthPlugin());
+// 导入配置和 IP 源
+import config from './config.js';
+import ipSources from './ip_sources.js';
 
 let total = 0;
 let processed = 0;
@@ -34,7 +30,7 @@ function printProgress() {
  * @param {string} ipPort - 带端口或不带端口的 IP 地址，例如：192.168.1.1 或 192.168.1.1:8080
  */
 async function checkProxy(ipPort) {
-  const [ip, port = config.DEFAULT_PORT] = ipPort.split(':'); // 使用统一端口
+  const [ip, port = config.DEFAULT_PORT] = ipPort.split(':');
 
   let browser = null;
 
@@ -68,6 +64,7 @@ async function checkProxy(ipPort) {
       updateProgress(true);
       return ip; // 只返回纯 IP
     }
+
   } catch (e) {
     // 忽略错误，只记录失败
   } finally {
@@ -92,7 +89,7 @@ async function fetchAndCheckIps() {
       const text = await res.text();
       const ips = text
         .split('\n')
-        .map(line => line.split('#')[0].trim()) // 去除注释内容
+        .map(line => line.split('#')[0].trim()) // 清洗注释内容
         .filter(line => /^(\d{1,3}\.){3}\d{1,3}(:\d+)?$/.test(line)); // 筛选合法格式
       allIps.push(...ips);
     } catch (e) {
