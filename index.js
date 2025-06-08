@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { promises as fs } from 'fs';
 import { exec } from 'child_process';
 import Redis from 'ioredis';
+import axios from 'axios';
 
 // 导入配置和 IP 源
 import config from './config.js';
@@ -30,6 +31,32 @@ function printProgress() {
 }
 
 /**
+ * 获取 IP 地理位置
+ */
+async function getGeoLocation(ip) {
+  try {
+    const res = await axios.get(`${config.GEOLOCATION_API}${ip}`);
+    return {
+      country: res.data.country || 'Unknown',
+      region: res.data.regionName || 'Unknown',
+      city: res.data.city || 'Unknown',
+      lat: res.data.lat || null,
+      lon: res.data.lon || null,
+      isp: res.data.org || 'Unknown'
+    };
+  } catch (e) {
+    return {
+      country: 'Unknown',
+      region: 'Unknown',
+      city: 'Unknown',
+      lat: null,
+      lon: null,
+      isp: 'Unknown'
+    };
+  }
+}
+
+/**
  * 使用 Playwright 检查代理是否可以绕过 Cloudflare
  * @param {string} ipPort - 带端口的 IP 地址，例如：192.168.1.1:8080
  */
@@ -42,7 +69,8 @@ async function checkProxy(ipPort) {
     const cached = await redis.get(`proxy:${ip}`);
     if (cached === 'valid') {
       updateProgress(true);
-      return { ip, port };
+      const geo = await getGeoLocation(ip);
+      return { ip, port, ...geo };
     }
 
     // 启动带代理的浏览器
@@ -75,7 +103,9 @@ async function checkProxy(ipPort) {
     if (!content.includes("Just a moment...")) {
       updateProgress(true);
       await redis.setex(`proxy:${ip}`, 3600 * 24, 'valid'); // 缓存 24 小时
-      return { ip, port };
+
+      const geo = await getGeoLocation(ip);
+      return { ip, port, ...geo };
     }
 
     await redis.setex(`proxy:${ip}`, 3600 * 2, 'invalid'); // 缓存失败结果 2 小时
@@ -139,7 +169,12 @@ async function fetchAndCheckIps() {
   const jsonContent = validProxies.map(proxy => ({
     ip: proxy.ip,
     port: proxy.port,
-    country: 'Unknown', // 可替换为实际地理信息接口
+    country: proxy.country,
+    region: proxy.region,
+    city: proxy.city,
+    lat: proxy.lat,
+    lon: proxy.lon,
+    isp: proxy.isp,
     lastChecked: Date.now()
   }));
   await fs.writeFile(config.OUTPUT_JSON, JSON.stringify(jsonContent, null, 2));
